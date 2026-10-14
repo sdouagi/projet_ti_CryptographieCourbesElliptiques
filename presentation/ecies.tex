@@ -1,0 +1,103 @@
+% --- ECIES Section ---
+
+\begin{frame}{Introduction à ECIES}
+\frametitle{Elliptic Curve Integrated Encryption Scheme (ECIES)}
+
+\begin{itemize}
+    \item ECIES est un \textbf{protocole de chiffrement hybride} qui combine la cryptographie à clé publique (ECC) et le chiffrement symétrique.
+    \item Il garantit la \textbf{confidentialité} et l'\textbf{authenticité} des messages.
+    \item \textbf{Principe :} Alice chiffre un message en utilisant uniquement la clé publique de Bob ($Q_{Bob}$), en générant une clé de session unique et temporaire.
+\end{itemize}
+
+\begin{block}{Avantage Majeur}
+    Il permet un chiffrement unidirectionnel sécurisé : seul le destinataire légitime peut déchiffrer, même si l'échange a lieu sur un canal public (comme une blockchain).
+\end{block}
+\end{frame}
+
+\begin{frame}{Les Composants d'ECIES}
+\frametitle{Les Trois Piliers du Protocole Hybride}
+
+ECIES est un schéma intégré basé sur l'assemblage de briques cryptographiques :
+
+\begin{enumerate}
+    \item \textbf{ECDH (Elliptic Curve Diffie-Hellman)}
+    \begin{itemize}
+        \item \textbf{Rôle :} Utiliser la multiplication scalaire pour créer un \textbf{Secret Partagé} $S$ unique et éphémère entre l'expéditeur et le destinataire.
+    \end{itemize}
+    \item \textbf{KDF (Key Derivation Function)}
+    \begin{itemize}
+        \item \textbf{Rôle :} Dériver une clé de chiffrement symétrique ($K_E$) et de vérification ($K_M$) de haute qualité à partir du secret $S$. (Utilisation courante : HKDF-SHA256).
+    \end{itemize}
+    \item \textbf{Chiffrement Symétrique Authentifié (AES-GCM)}
+    \begin{itemize}
+        \item \textbf{Rôle :} Chiffrer rapidement le message (Ciphertext). Le mode GCM ajoute un \textbf{Tag} qui garantit l'\textbf{intégrité} : si une seule donnée est modifiée, le déchiffrement échoue.
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Flux Opérationnel de Chiffrement (Côté Alice)}
+\frametitle{De l'idée au Ciphertext}
+\centering
+
+\begin{enumerate}
+    \item \textbf{Clé Éphémère :} Alice sélectionne une clé privée $r$ aléatoire et calcule le point public éphémère $R = r \cdot G$.
+    \item \textbf{Secret Partagé :} Alice calcule le secret $S = r \cdot Q_{Bob}$ (où $Q_{Bob}$ est la clé publique de Bob).
+    \item \textbf{Dérivation :} Elle utilise $S$ pour dériver la clé symétrique $K_E$.
+    \item \textbf{Chiffrement :} Elle chiffre le message avec $K_E$ (via AES-GCM).
+    \item \textbf{Transmission :} Alice envoie à Bob l'ensemble du paquet : $(R, IV, Ciphertext, Tag)$.
+\end{enumerate}
+\end{frame}
+
+% --- NOUVELLE DIAPO 1/2 CHARLIE (Mise en place) ---
+\begin{frame}{Simulation : Le Scénario d'Interception}
+\frametitle{La Preuve par Charlie - Mise en place}
+
+\begin{block}{Scénario de Test}
+    Alice chiffre un message pour Bob en utilisant ECIES. Charlie (l'espion) intercepte le paquet $(R, IV, Ciphertext, Tag)$ et tente de le déchiffrer avec sa propre clé privée.
+\end{block}
+
+\textbf{Tentative de lecture :}
+\begin{itemize}
+    \item \textbf{Bob (Détenteur légitime) :} Bob utilise sa clé privée statique $d_{Bob}$ pour calculer le secret partagé $S' = d_{Bob} \cdot R$. Le déchiffrement est possible.
+    \item \textbf{Charlie (Attaquant) :} Charlie tente de calculer un secret $S'' = d_{Charlie} \cdot R$. $S''$ est mathématiquement différent de $S'$.  La clé $K_E''$ dérivée par Charlie est fausse. Le déchiffrement AES-GCM échoue.
+\end{itemize}
+\end{frame}
+
+
+% --- Application Pratique : Fichiers (Déjà séparé en deux, conservé) ---
+
+\begin{frame}{Application Pratique : Chiffrement de Documents}
+\frametitle{Cas d'Usage : ECIES pour la Sécurité des Fichiers}
+
+\begin{block}{Contexte : Protection d'un Rapport Médical}
+    ECIES est idéalement utilisé pour sécuriser l'échange ou le stockage de documents volumineux et sensibles (ici, un PDF).
+\end{block}
+
+\textbf{Processus de Chiffrement}
+\begin{columns}
+    \column{0.5\textwidth}
+    \begin{itemize}
+        \item \textbf{Destinataire :} Bob (Clé Publique \texttt{...960e877})
+        \item \textbf{Fichier source :} \texttt{cours\_ti.pdf}
+        \item \textbf{Résultat :} Fichier chiffré \texttt{document.enc} (illisible)
+    \end{itemize}
+    \column{0.5\textwidth}
+    \begin{alertblock}{Opération clé}
+        Le protocole ECIES utilise le point de la courbe comme clé secrète jetable pour encapsuler la clé symétrique (AES) qui, elle, va chiffrer l'intégralité du PDF.
+    \end{alertblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Validation de la Confidentialité et de l'Intégrité}
+\frametitle{Conclusion de l'Expérience de Chiffrement de Fichiers}
+
+\begin{itemize}
+    \item \textbf{Succès du déchiffrement :} Bob réussit à récupérer \texttt{document\_decrypt.pdf} sans altération, prouvant la fiabilité du processus hybride.
+    \item \textbf{Sécurité Garantie :} Si le fichier \texttt{document.enc} est intercepté, sans la clé privée de Bob (\texttt{...75d2f0d6}), le fichier reste crypté et inutilisable.
+    \item \textbf{Intégrité :} Le mode GCM de l'AES garantit que le document n'a pas été corrompu ni modifié pendant le transport ou le stockage.
+\end{itemize}
+
+\begin{alertblock}{Validation Finale}
+    L'expérience confirme la robustesse d'ECIES pour la gestion de la confidentialité et de l'intégrité des données à grande échelle (chiffrement de fichiers volumineux).
+\end{alertblock}
+\end{frame}

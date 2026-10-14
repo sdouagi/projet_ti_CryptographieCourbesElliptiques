@@ -1,0 +1,64 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usetheme{Copenhagen}
+\usecolortheme{beaver}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+\setbeamertemplate{footline}[page number]
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+
+\title{Cryptographie sur les courbes elliptiques}
+\subtitle{Définitions et Opérations Arithmétiques}
+\author{Thomas BAVOUX, Selma DOUAGI}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% --- NOUVELLE DIAPOSITIVE D'INTRODUCTION ---
+\section{Introduction}
+\begin{frame}{Plan et Objectifs}
+\frametitle{Objectifs de la Présentation}
+
+\begin{itemize}
+    \item Comprendre les \textbf{fondations mathématiques} de la Cryptographie à Courbe Elliptique (CCE).
+    \item Étudier l'application principale de la CCE pour la \textbf{Signature Numérique} (ECDSA).
+    \item Découvrir le protocole de \textbf{Chiffrement Hybride} (ECIES) et ses applications pratiques.
+\end{itemize}
+\end{frame}
+
+% --- STRUCTURE DU DOCUMENT ---
+\section{Fondations des Courbes Elliptiques}
+\input{courbe_elliptique}
+
+\section{Signature Numérique (ECDSA)}
+\input{ecdsa}
+
+\section{Chiffrement (ECIES)}
+\input{ecies}
+
+% --- NOUVELLE DIAPOSITIVE DE CONCLUSION ---
+\section{Conclusion Générale}
+\begin{frame}{Conclusion et Perspectives}
+\frametitle{Synthèse des Concepts}
+
+\begin{itemize}
+    \item La CCE est la base de la cryptographie moderne, offrant une \textbf{grande sécurité} avec des \textbf{clés courtes} (ECDSA).
+    \item L'ECDLP est le fondement mathématique qui protège les clés privées.
+    \item Le protocole ECIES étend la CCE au chiffrement, combinant \textbf{ECDH} pour l'échange de clés et \textbf{AES-GCM} pour l'intégrité et la confidentialité.
+\end{itemize}
+
+\begin{alertblock}{Message Clé}
+    L'implémentation de ces algorithmes doit impérativement utiliser des librairies cryptographiques \textbf{officielles et auditées} pour garantir la sécurité et éviter les vulnérabilités liées au nonce ou aux attaques par canal auxiliaire.
+\end{alertblock}
+\end{frame}
+
+\end{document}
